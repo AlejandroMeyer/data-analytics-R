@@ -6,3 +6,5 @@ View(dat) #as table
 
 data <- dat
 head(data)
+
+#Count how many times each educational level code appears
