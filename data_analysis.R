@@ -93,3 +93,14 @@ new_data <- raw_data %>%
   )
 
 head(new_data)
+
+# ---------------------------------------------------------------- #
+#                   EXPLORATORY DATA ANALYSIS (EDA)
+# ---------------------------------------------------------------- #
+
+# Sorts the frequency table of the 'personal_achievement_deserved' variable
+# in descending order (from largest count to smallest count).
+sort(table(new_data[["personal_achievement_deserved"]]), decreasing = TRUE)
+
+
+
