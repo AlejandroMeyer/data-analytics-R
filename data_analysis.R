@@ -8,3 +8,4 @@ data <- dat
 head(data)
 
 #Count how many times each educational level code appears
+table(data[["isced11_20"]])
