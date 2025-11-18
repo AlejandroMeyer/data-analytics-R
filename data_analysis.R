@@ -95,12 +95,56 @@ new_data <- raw_data %>%
 head(new_data)
 
 # ---------------------------------------------------------------- #
+
+# See my new field
+
+# Use the pipe (|>) without assignment (<-) to inspect the result.
+new_data |>
+  # Select only the relevant columns to make the comparison clear
+  select(gender) |>
+  
+  # Apply the transformation and calculate the new column
+  mutate(
+    # Create the numeric dummy variable 'gender_female'
+    gender_female = case_when(
+      gender == 2 ~ 1,      # Female (code 2) becomes 1
+      gender == 1 ~ 0,      # Male (code 1) becomes 0 (REFERENCE)
+      TRUE ~ NA_real_       # Invalid/Non-response codes become NA
+    )
+  ) |>
+  # Display the first few rows for confirmation (equivalent to SELECT TOP N)
+  head()
+
+
+# Update the 'new_data' DataFrame with the new column 'gender_female'
+
+# new_data <- new_data |>
+#   mutate(
+#     gender_female = case_when(
+#       gender == 2 ~ 1,
+#       gender == 1 ~ 0,
+#       TRUE ~ NA_real_
+#     )
+#   )
+
+# ---------------------------------------------------------------- #
+
+
+
+
+
+
+# ---------------------------------------------------------------- #
 #                   EXPLORATORY DATA ANALYSIS (EDA)
 # ---------------------------------------------------------------- #
 
 # Sorts the frequency table of the 'personal_achievement_deserved' variable
 # in descending order (from largest count to smallest count).
 sort(table(new_data[["personal_achievement_deserved"]]), decreasing = TRUE)
+
+
+#How to convert dummy reference?
+#table(raw_data[["education_level"]])
 
 
 
