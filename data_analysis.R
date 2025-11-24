@@ -96,7 +96,7 @@ head(new_data)
 
 # ---------------------------------------------------------------- #
 
-# See my new field
+# GENDER!
 
 # Use the pipe (|>) without assignment (<-) to inspect the result.
 new_data |>
@@ -108,7 +108,7 @@ new_data |>
     # Create the numeric dummy variable 'gender_female'
     gender_female = case_when(
       gender == 2 ~ 1,      # Female (code 2) becomes 1
-      gender == 1 ~ 0,      # Male (code 1) becomes 0 (REFERENCE)
+      gender == 1 ~ 0,      # Male (code 1) becomes 0 (REFERENCE) !!
       TRUE ~ NA_real_       # Invalid/Non-response codes become NA
     )
   ) |>
@@ -126,6 +126,139 @@ new_data |>
 #       TRUE ~ NA_real_
 #     )
 #   )
+
+
+
+# EDUCATION LEVEL
+# Doctoral as REFERENCE!!
+
+new_data |>
+  # Select the original variable for comparison
+  select(education_level) |>
+  
+  # Apply the transformation and calculate the seven new dummy columns
+  mutate(
+    # NOTE: The reference group (0) is Doctoral (8).
+    
+    # Define the set of ALL valid levels (1 through 8)
+    ALL_VALID_LEVELS = list(c(1, 2, 3, 4, 5, 6, 7, 8)), # Constant
+    
+    # --- DUMMY 1: Primary Education (1) ---
+    edu_primary_dummy = case_when(
+      education_level == 1 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_ # Codes 0 and all negatives become NA
+    ),
+    
+    # --- DUMMY 2: Lower Secondary Education (2) ---
+    edu_lower_secondary_dummy = case_when(
+      education_level == 2 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_ 
+    ),
+    
+    # --- DUMMY 3: Upper Secondary Education (3) ---
+    edu_upper_secondary_dummy = case_when(
+      education_level == 3 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_
+    ),
+    
+    # --- DUMMY 4: Post-secondary non-tertiary (4) ---
+    edu_post_secondary_dummy = case_when(
+      education_level == 4 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_
+    ),
+    
+    # --- DUMMY 5: Short cycle tertiary education (5) ---
+    edu_short_cycle_dummy = case_when(
+      education_level == 5 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_
+    ),
+    
+    # --- DUMMY 6: Bachelor’s or equivalent level (6) ---
+    edu_bachelor_dummy = case_when(
+      education_level == 6 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_
+    ),
+    
+    # --- DUMMY 7: Master’s or equivalent level (7) ---
+    edu_master_dummy = case_when(
+      education_level == 7 ~ 1,
+      education_level %in% ALL_VALID_LEVELS[[1]] ~ 0, # All other valid levels are 0
+      TRUE ~ NA_real_
+    )
+    # The 'ALL_VALID_LEVELS' list simplifies the '0' condition:
+    # If the level is valid (1-8) BUT NOT the '1' level for the current dummy, it's 0.
+  ) |>
+  # Exclude the temporary list variable from the output
+  select(-ALL_VALID_LEVELS) |>
+  
+  # Display the first 10 rows for confirmation
+  head(10)
+
+
+
+# Update the 'new_data' DataFrame with the seven new dummy columns
+
+# new_data <- new_data |>
+#   mutate(
+#     # --- DUMMY 1: Primary Education (1) ---
+#     edu_primary_dummy = case_when(
+#       education_level == 1 ~ 1,
+#       education_level %in% c(2, 3, 4, 5, 6, 7, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     ),
+#     
+#     # --- DUMMY 2: Lower Secondary Education (2) ---
+#     edu_lower_secondary_dummy = case_when(
+#       education_level == 2 ~ 1,
+#       education_level %in% c(1, 3, 4, 5, 6, 7, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     ),
+#     
+#     # --- DUMMY 3: Upper Secondary Education (3) ---
+#     edu_upper_secondary_dummy = case_when(
+#       education_level == 3 ~ 1,
+#       education_level %in% c(1, 2, 4, 5, 6, 7, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     ),
+#     
+#     # --- DUMMY 4: Post-secondary non-tertiary (4) ---
+#     edu_post_secondary_dummy = case_when(
+#       education_level == 4 ~ 1,
+#       education_level %in% c(1, 2, 3, 5, 6, 7, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     ),
+#     
+#     # --- DUMMY 5: Short cycle tertiary education (5) ---
+#     edu_short_cycle_dummy = case_when(
+#       education_level == 5 ~ 1,
+#       education_level %in% c(1, 2, 3, 4, 6, 7, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     ),
+#     
+#     # --- DUMMY 6: Bachelor’s or equivalent level (6) ---
+#     edu_bachelor_dummy = case_when(
+#       education_level == 6 ~ 1,
+#       education_level %in% c(1, 2, 3, 4, 5, 7, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     ),
+#     
+#     # --- DUMMY 7: Master’s or equivalent level (7) ---
+#     edu_master_dummy = case_when(
+#       education_level == 7 ~ 1,
+#       education_level %in% c(1, 2, 3, 4, 5, 6, 8) ~ 0,
+#       TRUE ~ NA_real_
+#     )
+#   )
+
+
+
+
 
 # ---------------------------------------------------------------- #
 
