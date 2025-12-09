@@ -202,59 +202,6 @@ new_data |>
 
 
 
-# Update the 'new_data' DataFrame with the seven new dummy columns
-
-# new_data <- new_data |>
-#   mutate(
-#     # --- DUMMY 1: Primary Education (1) ---
-#     edu_primary_dummy = case_when(
-#       education_level == 1 ~ 1,
-#       education_level %in% c(2, 3, 4, 5, 6, 7, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     ),
-#     
-#     # --- DUMMY 2: Lower Secondary Education (2) ---
-#     edu_lower_secondary_dummy = case_when(
-#       education_level == 2 ~ 1,
-#       education_level %in% c(1, 3, 4, 5, 6, 7, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     ),
-#     
-#     # --- DUMMY 3: Upper Secondary Education (3) ---
-#     edu_upper_secondary_dummy = case_when(
-#       education_level == 3 ~ 1,
-#       education_level %in% c(1, 2, 4, 5, 6, 7, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     ),
-#     
-#     # --- DUMMY 4: Post-secondary non-tertiary (4) ---
-#     edu_post_secondary_dummy = case_when(
-#       education_level == 4 ~ 1,
-#       education_level %in% c(1, 2, 3, 5, 6, 7, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     ),
-#     
-#     # --- DUMMY 5: Short cycle tertiary education (5) ---
-#     edu_short_cycle_dummy = case_when(
-#       education_level == 5 ~ 1,
-#       education_level %in% c(1, 2, 3, 4, 6, 7, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     ),
-#     
-#     # --- DUMMY 6: Bachelor’s or equivalent level (6) ---
-#     edu_bachelor_dummy = case_when(
-#       education_level == 6 ~ 1,
-#       education_level %in% c(1, 2, 3, 4, 5, 7, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     ),
-#     
-#     # --- DUMMY 7: Master’s or equivalent level (7) ---
-#     edu_master_dummy = case_when(
-#       education_level == 7 ~ 1,
-#       education_level %in% c(1, 2, 3, 4, 5, 6, 8) ~ 0,
-#       TRUE ~ NA_real_
-#     )
-#   )
 
 
 
