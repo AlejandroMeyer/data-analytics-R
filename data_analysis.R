@@ -94,7 +94,7 @@ head(new_data)
 
 # ---------------------------------------------------------------- #
 
-# See my new field
+# GENDER!
 
 # Use the pipe (|>) without assignment (<-) to inspect the result.
 new_data <- new_data |>
@@ -103,7 +103,7 @@ new_data <- new_data |>
     # Create the numeric dummy variable 'gender_female'
     gender_female = case_when(
       gender == 2 ~ 1,      # Female (code 2) becomes 1
-      gender == 1 ~ 0,      # Male (code 1) becomes 0 (REFERENCE)
+      gender == 1 ~ 0,      # Male (code 1) becomes 0 (REFERENCE) !!
       TRUE ~ NA_real_       # Invalid/Non-response codes become NA
     ), 
     
@@ -242,10 +242,9 @@ summary(mod8)
 
 summary(new_data$age)
 
-# BELOW HERE ARE SOME EXPERIMENTATION TO VISUALIZE AND GET MORE FAMILIARIZED WITH THE DATA
+# BELOW HERE ARE SOME EXPERIMENTATIONS TO VISUALIZE AND GET MORE FAMILIARIZED WITH THE DATA
 #
 mean(new_data$personal_achievement_deserved)
-
 
 hist(new_data$personal_achievement_deserved, 
      main = "Distribution of main variable", 
