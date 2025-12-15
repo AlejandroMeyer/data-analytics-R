@@ -213,28 +213,59 @@ mod2 <- lm(personal_achievement_deserved ~ gender_female + age + education_low +
 summary(mod2)
 # p values are all significant, the effects from gender and age are negligible, we can see a very significant effect due to high or low education though
 
-mod3 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + married_together + married_separate, data = new_data)
+
+mod3 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + married_together 
+           + married_separate
+           , data = new_data
+           )
 summary(mod3)
 # we add marriage and see bad p values for it, meaning no effect, this could be due to the data not capturing regular relationships but just marriages
 
-mod4 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + unemployed_or_minimal + non_working, data = new_data)
+
+mod4 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + unemployed_or_minimal 
+           + non_working
+           , data = new_data
+           )
 summary(mod4)
 # 
 
-mod5 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 + I(income_per_500^2), data = new_data)
+
+mod5 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 
+           + I(income_per_500^2)
+           data = new_data
+           )
 summary(mod5)
 #incomes effect seems to be very small too, until no education prevails especially the effect of low education, additionally the gender_female variable seems to get traction
 
-mod6 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 + I(income_per_500^2) + satisfaction_job + life_satisfaction_general, data = new_data)
+
+mod6 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 
+           + I(income_per_500^2) 
+           + satisfaction_job + life_satisfaction_general
+           , data = new_data
+           )
 summary(mod6)
 # for life and job satisfaction we can see good effects with very good p values
 # for every 5 points in life satisfaction (scale is 1-10), the main variable decreases by a whole point (the think they achieved what they deserved)
 
-mod7 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 + I(income_per_500^2) + satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + number_close_friends, data = new_data)
+
+mod7 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 
+           + I(income_per_500^2) 
+           + satisfaction_job 
+           + life_satisfaction_general + life_value_usefulness 
+           + positive_attitude + number_close_friends
+           , data = new_data
+           )
 summary(mod7)
 # number of close friends is completely insignificant, life_value_usefulness has a moderate effect
 
-mod8 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + number_close_friends + feeling_happy + migration_direct + migration_indirect, data = new_data)
+
+mod8 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + satisfaction_job 
+           + life_satisfaction_general + life_value_usefulness 
+           + positive_attitude + number_close_friends 
+           + feeling_happy + migration_direct 
+           + migration_indirect
+           , data = new_data
+           )
 summary(mod8)
 # next we can see that the feeling of being happy is a good predictor with a very good p value, same with being a direct migrant
 # conclusion for now: good predictors: education, life satisfaction in general, feeling of happiness, direct migration
