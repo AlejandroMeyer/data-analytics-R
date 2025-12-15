@@ -76,6 +76,7 @@ new_data <- raw_data %>%
     # Satisfaction and Attitudes
     satisfaction_income         = bkp_01_06,
     satisfaction_job            = bkp_01_03,
+    feeling_angry               = bkp_02_01,
     feeling_worried             = bkp_02_02,
     feeling_happy               = bkp_02_03,
     feeling_sad                 = bkp_02_04,
@@ -87,9 +88,6 @@ new_data <- raw_data %>%
     political_interest          = bkp_169,
     concern_social_cohesion     = bkp_168_09,
     number_close_friends        = bkp_07_01
-    
-    # Note: bkp_02_01 (angriness) was missing from the names() list, 
-    # so we exclude it here.
   )
 
 head(new_data)
@@ -99,10 +97,7 @@ head(new_data)
 # See my new field
 
 # Use the pipe (|>) without assignment (<-) to inspect the result.
-new_data |>
-  # Select only the relevant columns to make the comparison clear
-  select(gender) |>
-  
+new_data <- new_data |>
   # Apply the transformation and calculate the new column
   mutate(
     # Create the numeric dummy variable 'gender_female'
@@ -110,29 +105,162 @@ new_data |>
       gender == 2 ~ 1,      # Female (code 2) becomes 1
       gender == 1 ~ 0,      # Male (code 1) becomes 0 (REFERENCE)
       TRUE ~ NA_real_       # Invalid/Non-response codes become NA
-    )
-  ) |>
-  # Display the first few rows for confirmation (equivalent to SELECT TOP N)
-  head()
+    ), 
+    
+    # We make 3 dummy variables for low, average (reference), and high education as prof suggested
+    education_low = case_when(
+      education_level %in% c(0, 1, 2) ~ 1,
+      education_level < 0 ~ NA_real_,
+      TRUE ~ 0, 
+    ),
+  
+    education_high = case_when(
+      education_level %in% c(6, 7, 8) ~ 1,
+      education_level < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    age = 2025 - birth_year,
+    
+    # dummy variables for marital status with married living together, married living separate and single/unmarried (reference)
+    married_together = case_when(
+      marital_status %in% c(1, 7) ~ 1,
+      marital_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    married_separate = case_when(
+      marital_status %in% c(2, 6, 8) ~ 1,
+      marital_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    # dummy variables for migration background, with no background as reference
+    migration_direct = case_when(
+      migration_background == 2 ~ 1,
+      migration_background < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    migration_indirect = case_when(
+      migration_background == 3 ~ 1,
+      migration_background < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    # dummy variables for labor force status, with "working" as reference
+    # unemployed or only secondary job
+    unemployed_or_minimal = case_when(
+      labor_force_status %in% c(1, 6, 8, 9, 10) ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    # non working due to reasons: education, pension, military, parental leave
+    non_working = case_when(
+      labor_force_status %in% c(1, 6, 8, 9, 10) ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    # dummy variables for number of friends, reference is average number of close friends (2 - 4)
+    low_friends = case_when(
+      number_close_friends %in% c(0, 1) ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    high_friends = case_when(
+      number_close_friends %in% c(5,6,7,8) ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    very_high_friends = case_when(
+      number_close_friends > 8 ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    # dummy variables for the total number of kids, reference is having no kids
+    one_or_two_children = case_when(
+      total_children %in% c(1,2) ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    more_than_two_children = case_when(
+      total_children > 2 ~ 1,
+      labor_force_status < 0 ~ NA_real_,
+      TRUE ~ 0
+    ),
+    
+    # transforms income into 500 unit steps (could also use 1,000 unit steps or income classes instead)
+    income_per_500 = gross_labor_income/500
+    
+    
+  )
+
+# replace all other negative values we haven't replaces yet also with NA
+new_data[new_data < 0] <- NA
+
+# First experimentations with linear modelling lm()
+
+mod1 <- lm(personal_achievement_deserved ~ gender_female + age, data = new_data)
+summary(mod1)
+# we see no correlation between age and main variable, there is an effect due to gender p value is < 0.05, but the effect is quite small
 
 
-# Update the 'new_data' DataFrame with the new column 'gender_female'
+mod2 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high, data = new_data)
+summary(mod2)
+# p values are all significant, the effects from gender and age are negligible, we can see a very significant effect due to high or low education though
 
-# new_data <- new_data |>
-#   mutate(
-#     gender_female = case_when(
-#       gender == 2 ~ 1,
-#       gender == 1 ~ 0,
-#       TRUE ~ NA_real_
-#     )
-#   )
+mod3 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + married_together + married_separate, data = new_data)
+summary(mod3)
+# we add marriage and see bad p values for it, meaning no effect, this could be due to the data not capturing regular relationships but just marriages
 
-# ---------------------------------------------------------------- #
+mod4 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + unemployed_or_minimal + non_working, data = new_data)
+summary(mod4)
+# 
+
+mod5 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 + I(income_per_500^2), data = new_data)
+summary(mod5)
+#incomes effect seems to be very small too, until no education prevails especially the effect of low education, additionally the gender_female variable seems to get traction
+
+mod6 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 + I(income_per_500^2) + satisfaction_job + life_satisfaction_general, data = new_data)
+summary(mod6)
+# for life and job satisfaction we can see good effects with very good p values
+# for every 5 points in life satisfaction (scale is 1-10), the main variable decreases by a whole point (the think they achieved what they deserved)
+
+mod7 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_500 + I(income_per_500^2) + satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + number_close_friends, data = new_data)
+summary(mod7)
+# number of close friends is completely insignificant, life_value_usefulness has a moderate effect
+
+mod8 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + number_close_friends + feeling_happy + migration_direct + migration_indirect, data = new_data)
+summary(mod8)
+# next we can see that the feeling of being happy is a good predictor with a very good p value, same with being a direct migrant
+# conclusion for now: good predictors: education, life satisfaction in general, feeling of happiness, direct migration
+# no correlation: number of close friends, age, gender (only very minimal)
+
+summary(new_data$age)
+
+# BELOW HERE ARE SOME EXPERIMENTATION TO VISUALIZE AND GET MORE FAMILIARIZED WITH THE DATA
+#
+mean(new_data$personal_achievement_deserved)
 
 
+hist(new_data$personal_achievement_deserved, 
+     main = "Distribution of main variable", 
+     xlab = "achieved    <>     not achieved", 
+     col = "lightblue", 
+     border = "white")
 
+hist(new_data$number_close_friends, main = "number of friends", xlab = "friends", col = "lightblue", breaks = seq(0 , 100, by = 1), xlim = c(0,20), xaxt = "n")
+axis(1, at = seq(0, 20, by = 1))
+median(new_data$number_close_friends, na.rm = TRUE)
 
+hist(new_data$feeling_happy, main = "happy", xlab = "happiness", col = "lightblue", breaks = seq(0.5, 5.5, by = 1))
+axis(1, at = seq(1,6, by = 1))
 
+hist(new_data$total_children, main = "happy", xlab = "happiness", col = "lightblue", breaks = seq(0, max(new_data$total_children), by = 1))
 
 # ---------------------------------------------------------------- #
 #                   EXPLORATORY DATA ANALYSIS (EDA)
@@ -140,11 +268,10 @@ new_data |>
 
 # Sorts the frequency table of the 'personal_achievement_deserved' variable
 # in descending order (from largest count to smallest count).
-sort(table(new_data[["personal_achievement_deserved"]]), decreasing = TRUE)
+# sort(table(new_data[["personal_achievement_deserved"]]), decreasing = TRUE)
 
 
 #How to convert dummy reference?
 #table(raw_data[["education_level"]])
 
-
-
+View(new_data)
