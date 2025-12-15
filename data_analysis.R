@@ -283,7 +283,10 @@ hist(new_data$personal_achievement_deserved,
      col = "lightblue", 
      border = "white")
 
-hist(new_data$number_close_friends, main = "number of friends", xlab = "friends", col = "lightblue", breaks = seq(0 , 100, by = 1), xlim = c(0,20), xaxt = "n")
+hist(new_data$number_close_friends, main = "number of friends", xlab = "friends"
+     , col = "lightblue", breaks = seq(0 , 100, by = 1)
+     , xlim = c(0,20), xaxt = "n"
+     )
 axis(1, at = seq(0, 20, by = 1))
 median(new_data$number_close_friends, na.rm = TRUE)
 
@@ -302,6 +305,6 @@ hist(new_data$total_children, main = "happy", xlab = "happiness", col = "lightbl
 
 
 #How to convert dummy reference?
-#table(raw_data[["education_level"]])
+
 
 View(new_data)
