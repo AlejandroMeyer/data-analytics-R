@@ -339,11 +339,11 @@ new_data <- new_data|>
 # replace all other negative values we haven't replaces yet also with NA
 new_data[new_data < 0] <- NA
 
-# ---------------------------------------------------------------- #
+
 # ---------------------------------------------------------------- #
 #                       END DUMMY VARIABLES
 # ---------------------------------------------------------------- #
-# ---------------------------------------------------------------- #
+
 
 
 # Check the result
@@ -427,6 +427,18 @@ summary(mod8)
 # no correlation: number of close friends, age, gender (only very minimal)
 
 summary(new_data$age)
+
+# ---------------------------------------------------------------- #
+#                       END EXPERIMENTATION MODELLING
+# ---------------------------------------------------------------- #
+
+
+# ---------------------------------------------------------------- #
+# ---------------------------------------------------------------- #
+#                   VISUALIZATIONS AND GRAPHS
+# ---------------------------------------------------------------- #
+# ---------------------------------------------------------------- #
+
 
 # BELOW HERE ARE SOME EXPERIMENTATIONS TO VISUALIZE AND GET MORE FAMILIARIZED WITH THE DATA
 #
