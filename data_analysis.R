@@ -462,16 +462,3 @@ axis(1, at = seq(1,6, by = 1))
 
 hist(new_data$total_children, main = "happy", xlab = "happiness", col = "lightblue", breaks = seq(0, max(new_data$total_children), by = 1))
 
-# ---------------------------------------------------------------- #
-#                   EXPLORATORY DATA ANALYSIS (EDA)
-# ---------------------------------------------------------------- #
-
-# Sorts the frequency table of the 'personal_achievement_deserved' variable
-# in descending order (from largest count to smallest count).
-# sort(table(new_data[["personal_achievement_deserved"]]), decreasing = TRUE)
-
-
-#How to convert dummy reference?
-
-
-View(new_data)
