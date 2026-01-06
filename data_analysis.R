@@ -595,6 +595,12 @@ exp(coef(robustnesstest))
 # It seems like the chosen variables stay relevant / signifant (robust)
 
 
+# testing of multicolinearity of models
+# test any model by replacing mod_x
+# might need to install packages when using these functions
+library(car)
+vif(mod20)
+
 # ------------------------------------
 
 # ---------------------------------------------------------------- #
@@ -681,11 +687,7 @@ summary(mod30)
 
 
 
-# testing of multicolinearity of models
-# test any model by replacing mod_x
-# might need to install packages when using these functions
-library(car)
-vif(mod20)
+
 
 
 # ---------------------------------------------------------------- #
