@@ -53,7 +53,7 @@ new_data <- raw_data %>%
     # Key Dependent Variable
     personal_achievement_deserved = bkp_05_02, 
     
-    # Demographics and Background
+    # Demographics and Background #Ale
     education_level             = isced11_20,
     marital_status              = bkfamstd,
     birth_year                  = bkpbirthy,
@@ -62,7 +62,7 @@ new_data <- raw_data %>%
     total_children              = sumkids,
     household_id                = cid,
     
-    # Financial and Employment
+    # Financial and Employment  # Ale Meyer
     gross_labor_income          = labgro20,
     exp_fulltime_years          = expft20 / 10, # to test for fulltime experience with 10 year steps instead of single years
     exp_unemployment_years      = expue20,
@@ -70,7 +70,7 @@ new_data <- raw_data %>%
     labor_force_status          = lfs20,
     job_prestige_siops          = siops08_20 / 10, # to test for jumps in prestige by 10 points instead of jsut 1.0
     
-    # Satisfaction and Attitudes
+    # Satisfaction and Attitudes #Deniz and Filippo
     satisfaction_income         = bkp_01_06,
     satisfaction_job            = bkp_01_03,
     feeling_angry               = bkp_02_01,
@@ -616,7 +616,9 @@ mod29 <- lm(
     
     # --- Financial and Employment ---
     income_per_1000 + 
+    I(income_per_1000^2) + #New
     exp_unemployment_years + 
+    
     
     # --- Satisfaction and Attitudes ---
     satisfaction_income + 
