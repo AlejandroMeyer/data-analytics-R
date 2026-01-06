@@ -595,6 +595,90 @@ exp(coef(robustnesstest))
 # It seems like the chosen variables stay relevant / signifant (robust)
 
 
+# ------------------------------------
+
+# ---------------------------------------------------------------- #
+#                  FINAL MODEL (MOD 20) - STRUCTURED
+# ---------------------------------------------------------------- #
+
+mod29 <- lm(
+  formula = personal_achievement_deserved ~ 
+    
+    # --- Demographics and Background ---
+    gender_female + 
+    age + 
+    education_low + 
+    education_high + 
+    migration_direct + 
+    migration_indirect + 
+    one_or_two_children + 
+    more_than_two_children +  #New
+    
+    # --- Financial and Employment ---
+    income_per_1000 + 
+    exp_unemployment_years + 
+    
+    # --- Satisfaction and Attitudes ---
+    satisfaction_income + 
+    satisfaction_job + 
+    high_life_satisfaction + 
+    life_value_usefulness + 
+    positive_attitude + 
+    bad_feeling_overall + 
+    worried_often + 
+    
+    # --- Worries and Interests ---
+    economy_worried + 
+    economy_not_worried + 
+    no_political_interest + 
+    strong_political_interest,
+  
+  data = new_data
+)
+
+summary(mod29)
+
+# ------------------------------------
+
+
+mod30 <- lm(
+  formula = personal_achievement_deserved ~ 
+    
+    # --- Demographics and Background ---
+    #gender_female + 
+    #age + 
+    education_low + 
+    #education_high + 
+    #migration_direct + 
+    #migration_indirect + 
+    one_or_two_children + 
+    
+    # --- Financial and Employment ---
+    #income_per_1000 + 
+    exp_unemployment_years + 
+    
+    # --- Satisfaction and Attitudes ---
+    satisfaction_income + 
+    satisfaction_job + 
+    #high_life_satisfaction + 
+    life_value_usefulness + 
+    #positive_attitude + 
+    #bad_feeling_overall + 
+    #worried_often + 
+    
+    # --- Worries and Interests ---
+    #economy_worried + 
+    economy_not_worried + 
+    no_political_interest + 
+    strong_political_interest,
+  
+  data = new_data
+)
+
+summary(mod30)
+
+
+
 # testing of multicolinearity of models
 # test any model by replacing mod_x
 # might need to install packages when using these functions
@@ -656,7 +740,7 @@ install.packages("stargazer")
 
 library(stargazer)
 
-stargazer(mod1, mod6, mod20, 
+stargazer(mod20, mod29, mod30, 
           type = "text",
           title = "Evolution of Models",
           dep.var.labels = "Achievement Gap (High = Worse)",
@@ -664,6 +748,24 @@ stargazer(mod1, mod6, mod20,
 )
 
 
+#-----------------
+
+# 1. Frequency Table (How many Men vs Women)
+gender_distribution <- new_data %>%
+  count(gender_code = gender) %>%
+  mutate(
+    label = case_when(
+      gender_code == 1 ~ "Male",
+      gender_code == 2 ~ "Female",
+      TRUE ~ "Unknown/Missing"
+    )
+  )
+
+# View the result in a table
+View(gender_distribution)
+
+# 2. Base R Table (Quick check)
+table(new_data$gender, useNA = "ifany")
 
 
 # ---------------------------------------------------------------- #
