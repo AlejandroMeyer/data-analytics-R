@@ -170,13 +170,13 @@ new_data <- new_data|>
     # Reference: having no kids
     one_or_two_children = case_when(
       total_children %in% c(1,2) ~ 1,
-      labor_force_status < 0 ~ NA_real_,
+      total_children < 0 ~ NA_real_, #Error!
       TRUE ~ 0
     ),
     
     more_than_two_children = case_when(
       total_children > 2 ~ 1,
-      labor_force_status < 0 ~ NA_real_,
+      total_children < 0 ~ NA_real_, #Error fix
       TRUE ~ 0
     ),
     
