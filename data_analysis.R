@@ -637,3 +637,120 @@ axis(1, at = seq(1,6, by = 1))
 
 hist(new_data$total_children, main = "Children", xlab = "amount of children", col = "lightblue", breaks = seq(0, max(new_data$total_children), by = 1))
 
+
+
+
+
+
+
+
+
+
+
+
+# ---------------------------------------------------------------- #
+#                      COMPARING MODELS
+# ---------------------------------------------------------------- #
+
+install.packages("stargazer")
+
+library(stargazer)
+
+stargazer(mod1, mod6, mod20, 
+          type = "text",
+          title = "Evolution of Models",
+          dep.var.labels = "Achievement Gap (High = Worse)",
+          omit = c("Constant") # We remove the renaming list to avoid errors
+)
+
+
+
+
+# ---------------------------------------------------------------- #
+#                     TEST TO VALIDATE DUMMIES
+# ---------------------------------------------------------------- #
+
+
+table(Original = new_data$education_level, Dummy = new_data$education_low, useNA = "ifany")
+
+# New table
+validation_education <- new_data %>%
+  count(original = education_level, 
+        nuevo_dummy = education_low)
+
+View(validation_education)
+
+# ------------------------------------------------
+
+
+library(dplyr)
+library(purrr) # Required for the 'map_df' function (iteration)
+
+# 1. SETUP: Define the list of pairs to check
+#    Format: c("Original_Column_Name", "YNew_Dummy_Name")
+variables_to_check <- list(
+  c("education_level", "education_low"),
+  c("education_level", "education_high"),
+  c("marital_status",  "married_together"),
+  c("marital_status",  "married_separate"),
+  c("gender",          "gender_female"),
+  c("migration_background", "migration_direct"),
+  c("migration_background", "migration_indirect"),
+  c("labor_force_status",   "unemployed_or_minimal"),
+  c("labor_force_status",   "non_working"),
+  c("feeling_happy",        "not_happy"),
+  c("concern_economic_situation", "economy_worried"),
+  c("concern_economic_situation", "economy_not_worried"),
+  c("health_status",        "health_not_good")
+  # You can add more pairs here following the same format
+)
+
+# 2. FUNCTION: The "Group By" Logic
+#    This function takes a pair of variables and counts the combinations
+check_data_mapping <- function(pair, data) {
+  orig_var_name  <- pair[1]
+  dummy_var_name <- pair[2]
+  
+  # This acts like a SQL GROUP BY or a Pivot Table
+  data %>%
+    count(
+      Original_Value = .data[[orig_var_name]], 
+      Dummy_Value    = .data[[dummy_var_name]]
+    ) %>%
+    mutate(
+      Variable_Original = orig_var_name,
+      Variable_Dummy    = dummy_var_name
+    ) %>%
+    # Reorder columns for easier reading
+    select(Variable_Original, Original_Value, Variable_Dummy, Dummy_Value, n)
+}
+
+# 3. EXECUTION: Run the function on the whole list
+#    'map_df' runs the function for every pair and combines them into one big Data Frame
+validation_report <- map_df(variables_to_check, check_data_mapping, data = new_data)
+
+
+
+# ---------------- ERROR DETECTION SYSTEM -----------------------------
+
+
+# We filter for the specific "Silent Error": 
+# Where Original is NA, but Dummy is NOT NA (meaning it became 0 or 1)
+detected_errors <- validation_report %>%
+  filter(is.na(Original_Value) & !is.na(Dummy_Value))
+
+# --- OUTPUT RESULTS ---
+
+if(nrow(detected_errors) == 0) {
+  # If the error table is empty
+  message("SUCCESS: All dummy variables handled NAs correctly.")
+  message("   (No missing values were accidentally converted to 0)")
+} else {
+  # If errors are found
+  message("WARNING: Errors detected! Some NAs were converted to numbers.")
+  message("   Check the 'detected_errors' dataframe to see which variables failed.")
+  View(detected_errors)
+}
+
+# To see the full mapping
+View(validation_report)
