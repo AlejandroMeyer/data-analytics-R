@@ -118,7 +118,7 @@ new_data <- new_data|>
       TRUE ~ 0
     ),
     
-    # Marital status 
+    # -- Marital status --
     # with married living together, married living separate and single/unmarried (reference)
     #Reference: single/unmarried
     married_together = case_when(
