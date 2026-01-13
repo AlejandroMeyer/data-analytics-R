@@ -608,7 +608,7 @@ vif(mod20)
 # ---------------------------------------------------------------- #
 
 mod29 <- lm(
-  formula = personal_achievement_deserved ~ 
+    personal_achievement_deserved ~ 
     
     # --- Demographics and Background ---
     gender_female + 
@@ -650,7 +650,7 @@ summary(mod29)
 
 
 mod30 <- lm(
-  formula = personal_achievement_deserved ~ 
+    personal_achievement_deserved ~ 
     
     # --- Demographics and Background ---
     #gender_female + 
