@@ -68,7 +68,7 @@ new_data <- raw_data %>%
     exp_unemployment_years      = expue20,
     exp_parttime_years          = exppt20,
     labor_force_status          = lfs20,
-    job_prestige_siops          = siops08_20 / 10, # to test for jumps in prestige by 10 points instead of jsut 1.0
+    job_prestige_siops          = siops08_20 / 10, # to test for jumps in prestige by 10 points instead of just 1.0
     
     # Satisfaction and Attitudes #Deniz and Filippo
     satisfaction_income         = bkp_01_06,
@@ -105,15 +105,17 @@ new_data <- new_data|>
     
     # -- Education_level --
     
-    # We make 3 dummy variables for low, average (reference), and high education as professor suggested
+    # We make 3 education classes for low, average (reference), and high education as professor suggested
     education_low = case_when(
-      education_level %in% c(0, 1, 2) ~ 1,
+      education_level %in% c(1, 2) ~ 1,
+      education_level == 0 ~ NA_real_,
       education_level < 0 ~ NA_real_,
       TRUE ~ 0, 
     ),
     
     education_high = case_when(
       education_level %in% c(6, 7, 8) ~ 1,
+      education_level == 0 ~ NA_real_,
       education_level < 0 ~ NA_real_,
       TRUE ~ 0
     ),
@@ -190,7 +192,8 @@ new_data <- new_data|>
     # -- gross_labor_income --
     
     # transforms income into 1,000 unit steps (could also use 500 unit steps or income classes instead)
-    income_per_1000 = (gross_labor_income/1000),
+    #income_per_1000 = (gross_labor_income/1000),
+    #Delete this
     
     
     # -- exp_fulltime_years --
@@ -257,7 +260,7 @@ new_data <- new_data|>
       TRUE ~ 0
     ),
     
-        # -- feeling_happy -- 
+    # -- feeling_happy -- 
     
     # Reference: often or very often happy, because we assume that being happy is the default 
     # > we want to test the effect of NOT being happy
@@ -358,17 +361,17 @@ new_data <- new_data|>
       labor_force_status < 0 ~ NA_real_,
       TRUE ~ 0
     ),
-      
+    
     # --- Further dummy variables for grouping multiple variables and for further analysis
     
     # dummy for grouping bad feelings in general
     # Reference: not experiencing bad feelings across all 3 categories
     # bad_feeling_overall = 1 when person experiences angriness, sadness and lack of happiness all at the same time
     # worriedness is not included because it has been identified as a different type of bad feeling and doesn't correlate well with the others
-        bad_feeling_overall = case_when(
+    bad_feeling_overall = case_when(
       feeling_angry %in% c(3,4,5) & 
-      feeling_sad %in% c(3,4,5) & 
-      feeling_happy %in% c(1,2) ~ 1,
+        feeling_sad %in% c(3,4,5) & 
+        feeling_happy %in% c(1,2) ~ 1,
       TRUE ~ 0
     ),
     
@@ -380,12 +383,12 @@ new_data <- new_data|>
       TRUE ~ 0
     ),
     
-    # Dummy for experienceing high satisfaction in 3 categories
+    # Dummy for experienceing high satisfaction and psychological values across 3 categories
     # Reference: not experiencing high satisfaction (> 7) in all 3 categories
     high_satisfaction_values = case_when(
       satisfaction_income > 7 &
-      satisfaction_job > 7 &
-      life_value_usefulness > 7 ~ 1,
+        satisfaction_job > 7 &
+        life_value_usefulness > 7 ~ 1,
       TRUE ~ 0
     ),
     
@@ -402,11 +405,15 @@ new_data <- new_data|>
 # replace all other negative values we haven't replaces yet also with NA
 new_data[new_data < 0] <- NA
 
+sum(new_data$gross_labor_income == 0, na.rm = TRUE)
+# Because we use log() in the modelling phase for gross labor income
+# We can not have income values that equal 0
+# (there are 50 gross labor income values in the data set with the value 0)
+new_data$gross_labor_income[new_data$gross_labor_income == 0] <- NA
 
 # ---------------------------------------------------------------- #
 #                       END DUMMY VARIABLES
 # ---------------------------------------------------------------- #
-
 
 
 # Check the result
@@ -434,7 +441,7 @@ summary(mod2)
 mod3 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + married_together 
            + married_separate
            , data = new_data
-           )
+)
 summary(mod3)
 # we add marriage and see bad p values for it, meaning no effect, this could be due to the data not capturing regular relationships but just marriages
 
@@ -442,48 +449,50 @@ summary(mod3)
 mod4 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + unemployed_or_minimal 
            + non_working
            , data = new_data
-           )
+)
 summary(mod4)
 # being unemployed or only having a minimal job > great affect of 0.54
 
 
-mod5 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_1000 
-           + I(income_per_1000^2)
+mod5 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+           + I(log(gross_labor_income)^2)
            , data = new_data
-           )
+)
 summary(mod5)
 #incomes effect seems to be very small too, until now education prevails especially the effect of low education, 
 # additionally the gender_female variable seems to get traction
 
 
-mod6 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_1000 
-           + I(income_per_1000^2) 
+mod6 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+           + I(log(gross_labor_income)^2) 
            + satisfaction_job + life_satisfaction_general
            , data = new_data
-           )
+)
 summary(mod6)
 # for life and job satisfaction we can see good effects with very good p values
 # for every 5 points in life satisfaction (scale is 1-10), the main variable decreases by a whole point (they think they achieved what they deserved)
 
 
-mod7 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + income_per_1000 
-           + I(income_per_1000^2) 
+mod7 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+           + I(log(gross_labor_income)^2) 
            + satisfaction_job 
            + life_satisfaction_general + life_value_usefulness 
            + positive_attitude + number_close_friends
            , data = new_data
-           )
+)
 summary(mod7)
 # number of close friends is completely insignificant, life_value_usefulness has a moderate effect
 
 
-mod8 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + satisfaction_job 
+mod8 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+           + I(log(gross_labor_income)^2) + satisfaction_job 
            + life_satisfaction_general + life_value_usefulness 
            + positive_attitude + number_close_friends 
-           + feeling_happy + migration_direct 
+           #+ feeling_happy take out this variable
+           + migration_direct 
            + migration_indirect
            , data = new_data
-           )
+)
 summary(mod8)
 # next we can see that the feeling of being happy is a good predictor with a very good p value, same with being a direct migrant
 # conclusion for now: good predictors: education, life satisfaction in general, feeling of happiness, direct migration
@@ -497,43 +506,50 @@ summary(mod8)
 # and gradually tested some other variables one by one using this base
 
 # testing of all the feelings variables
-mod9 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
+mod9 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+           + I(log(gross_labor_income)^2) +  
              satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
              low_friends + high_friends + not_happy + migration_direct + migration_indirect, data = new_data)
 summary(mod9)
 # added not_happy and used dummy variables for amount of friends instead
 
-mod10 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
-             satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
-             low_friends + high_friends + not_happy + angry_often + migration_direct + migration_indirect, data = new_data)
+mod10 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
+              satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
+              low_friends + high_friends + not_happy + angry_often + migration_direct + migration_indirect, data = new_data)
 summary(mod10)
 # added angriness
 
-mod11 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
+mod11 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
               satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
               low_friends + high_friends + worried_often + sad_often + migration_direct + migration_indirect, data = new_data)
 summary(mod11)
 # tested worriedness and sadness instead of happy and angry
 
-mod12 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
+mod12 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
               satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
               low_friends + high_friends + migration_direct + migration_indirect + health_not_good, data = new_data)
 summary(mod12)
 # testing of the health status instead of the feelings variables
 
-mod13 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
+mod13 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
               satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
               low_friends + high_friends + migration_direct + migration_indirect + one_or_two_children + more_than_two_children, data = new_data)
 summary(mod13)
 # testing of number of children instead of health status
 
-mod14 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
+mod14 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
               satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
               low_friends + high_friends + migration_direct + migration_indirect + strong_political_interest + no_political_interest, data = new_data)
 summary(mod14)
 # testing of political interest instead of number of children
 
-mod15 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + 
+mod15 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) + 
               satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
               low_friends + high_friends + migration_direct + migration_indirect + economy_worried + economy_not_worried + 
               social_great_concern + social_no_concern, data = new_data)
@@ -542,28 +558,54 @@ summary(mod15)
 # concern for economic situation seems important 
 # but for social cohesion  not
 
-mod16 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high +  
+
+# Test for remaining independent variables relating to Job and Income
+mod16 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
+              satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
+              low_friends + high_friends + migration_direct + migration_indirect + job_prestige_siops, data = new_data)
+summary(mod16)
+# Testing the values for job prestige
+
+mod17 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
+              satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
+              low_friends + high_friends + migration_direct + migration_indirect + satisfaction_income, data = new_data)
+summary(mod17)
+# Testing the variabeles for income satisfaction 
+
+mod18 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
+              satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
+              low_friends + high_friends + migration_direct + migration_indirect + exp_fulltime_years + exp_parttime_years + exp_unemployment_years, data = new_data)
+summary(mod18)
+# Testing the experience of years spent in full time, part time or unemployment
+
+mod19 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) +  
               satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
               low_friends + high_friends + migration_direct + migration_indirect + bad_feeling_overall, data = new_data)
-summary(mod16)
+summary(mod19)
 # testing for a new dummy variable called "bad_feeling_overall"
 # this tests the effect of experiencing bad feelings overall
 # (being sad, angry and not happy at the same time)
 
-mod17 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + 
-              high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall + economy_worried + 
-              economy_not_worried + one_or_two_children + more_than_two_children + unemployed_or_minimal + non_working, data = new_data)
-summary(mod17)
-# testing of of the labor force status (unemployed, non working etc.)
-# AND using the new dummy variable for extremely high life satisfaction instead (high_life_satisfaction)
 
-mod18 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + 
+mod20 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) + 
+              high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall + economy_worried + 
+              economy_not_worried + one_or_two_children + more_than_two_children, data = new_data)
+summary(mod20)
+# using the new dummy variable for extremely high life satisfaction instead raw values (high_life_satisfaction)
+
+mod21 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) + 
               high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall + economy_worried + 
               economy_not_worried + one_or_two_children + more_than_two_children + satisfaction_income + 
-              satisfaction_job + life_value_usefulness + income_per_1000, data = new_data)
-summary(mod18)
-# here I added income again, because it is supposed to be a "controlling variable"
-# testinf for extremely high life_satisfaction
+              satisfaction_job + life_value_usefulness + log(gross_labor_income), data = new_data)
+summary(mod21)
+# using the new dummy variable for extremely high life satisfaction instead raw values (high_life_satisfaction)
+# testing for extremely high life_satisfaction and comparing the effect of other satisfaction variables
 
 # checking for multicolinearity
 # -> by this test we can see that we cannot test for income and labor force status at the same time
@@ -572,22 +614,25 @@ sum(new_data$income_per_1000[new_data$non_working == 1], na.rm = TRUE)
 
 
 
-mod19 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall 
-            + economy_worried + economy_not_worried + one_or_two_children + more_than_two_children + income_per_1000 + satisfaction_income + satisfaction_job + job_prestige_siops
+mod22 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) + high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall 
+            + economy_worried + economy_not_worried + one_or_two_children + more_than_two_children + log(gross_labor_income) + satisfaction_income + satisfaction_job + job_prestige_siops
             + positive_attitude + life_value_usefulness + exp_fulltime_years + exp_unemployment_years + married_together + married_separate + worried_often + no_political_interest + strong_political_interest, data = new_data)
-summary(mod19)
+summary(mod22)
 # For this one I just wanted test as many variables as possible
 # to see if there are any effects on the model if I try to include anything
 
-mod20 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall  
-            + economy_worried + economy_not_worried + one_or_two_children + income_per_1000 + satisfaction_income + satisfaction_job
+mod23 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall  
+            + economy_worried + economy_not_worried + one_or_two_children + log(gross_labor_income) 
+            + I(log(gross_labor_income)^2) + satisfaction_income + satisfaction_job
             + positive_attitude + life_value_usefulness + exp_unemployment_years + worried_often + no_political_interest + strong_political_interest, data = new_data)
-summary(mod20)
+summary(mod23)
 # This is a test where I tried to include every variable that seemed SOWEWHAT important so far
 
 robustnesstest <- glm(achievement_deserved ~ gender_female + age + education_low + education_high + high_life_satisfaction + migration_direct + migration_indirect + bad_feeling_overall 
-            + economy_worried + economy_not_worried + one_or_two_children + more_than_two_children + income_per_1000 + satisfaction_income + satisfaction_job + job_prestige_siops
-            + positive_attitude + life_value_usefulness + exp_fulltime_years + exp_unemployment_years + married_together + married_separate + worried_often + no_political_interest + strong_political_interest, family = "binomial", data = new_data)
+                      + economy_worried + economy_not_worried + one_or_two_children + more_than_two_children + log(gross_labor_income) + log(gross_labor_income) 
+                      + I(log(gross_labor_income)^2) + satisfaction_income + satisfaction_job + job_prestige_siops
+                      + positive_attitude + life_value_usefulness + exp_fulltime_years + exp_unemployment_years + married_together + married_separate + worried_often + no_political_interest + strong_political_interest, family = "binomial", data = new_data)
 summary(robustnesstest)
 exp(coef(robustnesstest))
 # This is a robustness test with logistic regression
@@ -608,7 +653,7 @@ vif(mod20)
 # ---------------------------------------------------------------- #
 
 mod29 <- lm(
-    personal_achievement_deserved ~ 
+  formula = personal_achievement_deserved ~ 
     
     # --- Demographics and Background ---
     gender_female + 
@@ -621,8 +666,8 @@ mod29 <- lm(
     more_than_two_children +  #New
     
     # --- Financial and Employment ---
-    income_per_1000 + 
-    I(income_per_1000^2) + #New
+    log(gross_labor_income) + 
+    I(log(gross_labor_income)^2) + #New
     exp_unemployment_years + 
     
     
@@ -650,7 +695,7 @@ summary(mod29)
 
 
 mod30 <- lm(
-    personal_achievement_deserved ~ 
+  formula = personal_achievement_deserved ~ 
     
     # --- Demographics and Background ---
     #gender_female + 
@@ -662,7 +707,7 @@ mod30 <- lm(
     one_or_two_children + 
     
     # --- Financial and Employment ---
-    #income_per_1000 + 
+    #log(gross_labor_income) + 
     exp_unemployment_years + 
     
     # --- Satisfaction and Attitudes ---
@@ -702,7 +747,7 @@ summary(mod30)
 # ---------------------------------------------------------------- #
 
 # BELOW HERE ARE SOME EXPERIMENTATIONS TO VISUALIZE AND GET MORE FAMILIARIZED WITH THE DATA
-  
+
 mean(new_data$personal_achievement_deserved)
 hist(new_data$job_prestige_siops)
 
@@ -716,7 +761,7 @@ hist(new_data$personal_achievement_deserved,
 hist(new_data$number_close_friends, main = "number of friends", xlab = "friends"
      , col = "lightblue", breaks = seq(0 , 100, by = 1)
      , xlim = c(0,20), xaxt = "n"
-     )
+)
 axis(1, at = seq(0, 20, by = 1))
 median(new_data$number_close_friends, na.rm = TRUE)
 
@@ -725,14 +770,11 @@ axis(1, at = seq(1,6, by = 1))
 
 hist(new_data$total_children, main = "Children", xlab = "amount of children", col = "lightblue", breaks = seq(0, max(new_data$total_children), by = 1))
 
-
-
-
-
-
-
-
-
+# This checks how the gross labor income behaves (in this case from 2,000 to 6,000 units, an increase of 200%)
+old <- log(2000) 
+new <- log(6000) 
+effect <- 0.754485 * (new - old) + -0.058797 * (new^2 - old^2) 
+effect
 
 
 
@@ -744,7 +786,7 @@ install.packages("stargazer")
 
 library(stargazer)
 
-stargazer(mod20, mod29, mod30, 
+stargazer(mod23, mod29, mod30, 
           type = "text",
           title = "Evolution of Models",
           dep.var.labels = "Achievement Gap (High = Worse)",
@@ -834,7 +876,6 @@ check_data_mapping <- function(pair, data) {
 # 3. EXECUTION: Run the function on the whole list
 #    'map_df' runs the function for every pair and combines them into one big Data Frame
 validation_report <- map_df(variables_to_check, check_data_mapping, data = new_data)
-
 
 
 # ---------------- ERROR DETECTION SYSTEM -----------------------------
