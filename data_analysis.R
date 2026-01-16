@@ -265,13 +265,13 @@ new_data <- new_data|>
     # Reference: often or very often happy, because we assume that being happy is the default 
     # > we want to test the effect of NOT being happy
     not_happy = case_when(
-      feeling_happy %in% c(1, 2, 3) ~ 1,   # very rarely (1), rarely (2), sometimes (3) = 1
+      feeling_happy %in% c(1, 2) ~ 1,   # very rarely (1) or rarely (2) = 1
       feeling_happy < 0 ~ NA_real_,
       TRUE ~ 0                          
     ),
     
     # -- life_value_usefulness --
-    # likert scale is from 1-10 > large enough to assume metric data and take the raw values
+    # likert scale is from 0-10 > large enough to assume metric data and take the raw values
     
     # -- positive_attitude --    
     # likert scale is from 1-7 > large enough to assume metric data and take the raw values
