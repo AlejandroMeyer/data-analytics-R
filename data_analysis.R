@@ -477,7 +477,7 @@ mod7 <- lm(personal_achievement_deserved ~ gender_female + age + education_low +
            + I(log(gross_labor_income)^2) 
            + satisfaction_job 
            + life_satisfaction_general + life_value_usefulness 
-           + positive_attitude + number_close_friends
+           + positive_attitude + low_friends + high_friends
            , data = new_data
 )
 summary(mod7)
@@ -487,8 +487,7 @@ summary(mod7)
 mod8 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
            + I(log(gross_labor_income)^2) + satisfaction_job 
            + life_satisfaction_general + life_value_usefulness 
-           + positive_attitude + number_close_friends 
-           #+ feeling_happy take out this variable
+           + positive_attitude + low_friends + high_friends 
            + migration_direct 
            + migration_indirect
            , data = new_data
@@ -502,7 +501,7 @@ summary(mod8)
 
 
 # new tests added start here
-# Comment from Deniz: Starting from here, I used the previous model as a base 
+# Starting from here, we use the previous model as a base 
 # and gradually tested some other variables one by one using this base
 
 # testing of all the feelings variables
@@ -511,7 +510,7 @@ mod9 <- lm(personal_achievement_deserved ~ gender_female + age + education_low +
              satisfaction_job + life_satisfaction_general + life_value_usefulness + positive_attitude + 
              low_friends + high_friends + not_happy + migration_direct + migration_indirect, data = new_data)
 summary(mod9)
-# added not_happy and used dummy variables for amount of friends instead
+# added not_happy
 
 mod10 <- lm(personal_achievement_deserved ~ gender_female + age + education_low + education_high + log(gross_labor_income) 
             + I(log(gross_labor_income)^2) +  
