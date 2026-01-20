@@ -450,14 +450,14 @@ new_data$gross_labor_income[new_data$gross_labor_income == 0] <- NA
 # ================================================================ #
 
 
-# Check the result
+# Check the result of new_data
 head(new_data)
 summary(new_data$age)
 
 
 # ================================================================ #
 # ================================================================ #
-#                EXPERIMENTATION WITH MODELLING lm()
+#                MODELLING PROCESS WITH lm()
 # ================================================================ #
 # ================================================================ #
 
@@ -465,16 +465,16 @@ summary(new_data$age)
 mod1 <- lm(personal_achievement_deserved ~ gender_female + age, 
            data = new_data)
 summary(mod1)
-# we see no correlation between age and main variable, there is an effect 
-# due to gender p value is < 0.05, but the effect is quite small
+# we see no correlation between age and main variable at this stage,  
+# there is an effect because gender p-value is < 0.05, but the effect is quite small
 
 
 mod2 <- lm(personal_achievement_deserved ~ gender_female + age + education_low 
            + education_high, 
            data = new_data)
 summary(mod2)
-# p values are all significant, the effects from gender and age are negligible, 
-# we can see a very significant effect due to high or low education though
+# p-values all became significant, the effects from gender and age are negligible at this stage, 
+# we can see a very significant effect for high or low education though
 
 
 mod3 <- lm(
@@ -484,9 +484,8 @@ mod3 <- lm(
   data = new_data
 )
 summary(mod3)
-# we add marriage and see bad p values for it, meaning no effect, 
-# this could be due to the data not capturing regular relationships 
-# but just marriages
+# we add marriage and see bad p-values for it, meaning no effect, 
+# this could be due to the data not capturing regular relationships but only marriages
 
 
 mod4 <- lm(
@@ -496,7 +495,7 @@ mod4 <- lm(
   data = new_data
 )
 summary(mod4)
-# being unemployed or only having a minimal job > great effect of 0.54
+# being unemployed or only having a minimal job > great effect of ~ 0.5
 
 
 mod5 <- lm(
@@ -506,7 +505,9 @@ mod5 <- lm(
   data = new_data
 )
 summary(mod5)
-# incomes effect seems to be very small too, until now education prevails 
+# income with income³ was making income¹ insignificant
+# for income² > all degrees are significant
+# until now education prevails relevant
 # especially the effect of low education, additionally the gender_female 
 # variable seems to get traction
 
@@ -519,9 +520,9 @@ mod6 <- lm(
   data = new_data
 )
 summary(mod6)
-# for life and job satisfaction we can see good effects with very good p values
-# for every 5 points in life satisfaction (scale is 1-10), the main variable 
-# decreases by a whole point (they think they achieved what they deserved)
+# for life and job satisfaction we can see good effects with very good p-values
+# for every 5 points in life satisfaction (scale is 0-10), the main variable 
+# decreases by a about whole point (they think they achieved what they deserved)
 
 
 mod7 <- lm(
@@ -534,8 +535,8 @@ mod7 <- lm(
   data = new_data
 )
 summary(mod7)
-# number of close friends is completely insignificant, life_value_usefulness 
-# has a moderate effect
+# number of close friends is completely insignificant, 
+# life_value_usefulness and positive attitude have small to moderate effects
 
 
 mod8 <- lm(
@@ -549,20 +550,18 @@ mod8 <- lm(
   data = new_data
 )
 summary(mod8)
-# next we can see that the feeling of being happy is a good predictor with a 
-# very good p value, same with being a direct migrant
-# conclusion for now: good predictors: education, life satisfaction in general, 
-# feeling of happiness, direct migration
-# no correlation: number of close friends, age, gender (only very minimal)
-# > But we still have to keep age and gender in tests as controlling variables, 
+# next we can see that being a direct migrant is a good predictor with a 
+# very good p-value, same with being a direct migrant
+# conclusion for now: good predictors: education, life satisfaction in general, direct migration
+# We keep age and gender in tests as controlling variables, 
 # same with income
 
 
 # new tests added start here
 # Starting from here, we use the previous model as a base 
-# and gradually tested some other variables one by one using this base
+# and gradually tested other variables one by one using this base
 
-# testing of all the feelings variables
+# We begin with testing the "emotion" variables:
 mod9 <- lm(
   personal_achievement_deserved ~ gender_female + age + education_low 
   + education_high + log(gross_labor_income) 
@@ -573,7 +572,7 @@ mod9 <- lm(
   data = new_data
 )
 summary(mod9)
-# added not_happy
+# testing not_happy
 
 
 mod10 <- lm(
@@ -586,7 +585,7 @@ mod10 <- lm(
   data = new_data
 )
 summary(mod10)
-# added angriness
+# testing angriness
 
 
 mod11 <- lm(
@@ -599,7 +598,7 @@ mod11 <- lm(
   data = new_data
 )
 summary(mod11)
-# tested worriedness and sadness instead of happy and angry
+# testing worriedness and sadness
 
 
 mod12 <- lm(
@@ -612,7 +611,7 @@ mod12 <- lm(
   data = new_data
 )
 summary(mod12)
-# testing of the health status instead of the feelings variables
+# testing of the health status
 
 
 mod13 <- lm(
@@ -625,8 +624,7 @@ mod13 <- lm(
   data = new_data
 )
 summary(mod13)
-# testing of number of children instead of health status
-
+# testing of number of children
 
 mod14 <- lm(
   personal_achievement_deserved ~ gender_female + age + education_low 
@@ -638,8 +636,7 @@ mod14 <- lm(
   data = new_data
 )
 summary(mod14)
-# testing of political interest instead of number of children
-
+# testing of political interest
 
 mod15 <- lm(
   personal_achievement_deserved ~ gender_female + age + education_low 
@@ -652,12 +649,13 @@ mod15 <- lm(
   data = new_data
 )
 summary(mod15)
-# testing of concern for own economic situation and social cohesion concern 
-# instead of political interest. Concern for economic situation seems important 
-# but for social cohesion not.
+# testing of concern for own economic situation and for social cohesion
+# Concern for economic situation seems important 
+# but social cohesion seems not
 
 
-# Test for remaining independent variables relating to Job and Income
+# Tests for remaining independent variables relating to Job / Employment and Income:
+
 mod16 <- lm(
   personal_achievement_deserved ~ gender_female + age + education_low 
   + education_high + log(gross_labor_income) 
@@ -669,6 +667,7 @@ mod16 <- lm(
 )
 summary(mod16)
 # Testing the values for job prestige
+# > not important
 
 
 mod17 <- lm(
@@ -681,7 +680,8 @@ mod17 <- lm(
   data = new_data
 )
 summary(mod17)
-# Testing the variables for income satisfaction 
+# Testing the variables for income satisfaction
+# income seems quite relevant similar to life satisfaction in general
 
 
 mod18 <- lm(
@@ -708,9 +708,9 @@ mod19 <- lm(
   data = new_data
 )
 summary(mod19)
-# testing for a new dummy variable called "bad_feeling_overall"
+# testing for the new group dummy variable called "bad_feeling_overall"
 # this tests the effect of experiencing bad feelings overall
-# (being sad, angry and not happy at the same time)
+# (being sad, angry and being not happy at the same time)
 
 
 mod20 <- lm(
@@ -723,8 +723,8 @@ mod20 <- lm(
   data = new_data
 )
 summary(mod20)
-# using the new dummy variable for extremely high life satisfaction 
-# instead raw values (high_life_satisfaction)
+# using the new dummy variable for extremely high life satisfaction (high_life_satisfaction) 
+# instead raw values (life_satisfaction_general)
 
 
 mod21 <- lm(
@@ -739,15 +739,7 @@ mod21 <- lm(
   data = new_data
 )
 summary(mod21)
-# using the new dummy variable for extremely high life satisfaction 
-# instead raw values (high_life_satisfaction)
-# testing for extremely high life_satisfaction and comparing the effect 
-# of other satisfaction variables
-
-# checking for multicollinearity
-# -> by this test we can see that we cannot test for income and labor 
-# force status at the same time because they are multicollinear
-sum(new_data$income_per_1000[new_data$non_working == 1], na.rm = TRUE)
+# comparing the effect all satisfaction variables
 
 
 mod22 <- lm(
@@ -764,8 +756,7 @@ mod22 <- lm(
   data = new_data
 )
 summary(mod22)
-# For this one I just wanted test as many variables as possible
-# to see if there are any effects on the model if I try to include anything
+# Large test including all possibly relevant variables
 
 
 mod23 <- lm(
@@ -780,8 +771,8 @@ mod23 <- lm(
   data = new_data
 )
 summary(mod23)
-# This is a test where I tried to include every variable that seemed 
-# SOMEWHAT important so far
+# Test refined from mod22, containing variables we decided on
+# This model is further refined, structured and presented in mod29
 
 
 robustnesstest <- glm(
@@ -801,9 +792,8 @@ robustnesstest <- glm(
 summary(robustnesstest)
 exp(coef(robustnesstest))
 # This is a robustness test with logistic regression
-# It tests if the variables would also be relevant if we used logistic 
-# regression instead.
-# It seems like the chosen variables stay relevant / significant (robust)
+# It tests if the variables would also be relevant if we used logistic regression instead
+# It seems like about the same variables stay relevant / significant with logistic regression
 
 
 
@@ -814,7 +804,7 @@ exp(coef(robustnesstest))
 
 # ================================================================ #
 # ================================================================ #
-#                  FINAL MODEL (MOD 20) - STRUCTURED
+#                  FINAL MODEL STRUCTURED
 # ================================================================ #
 # ================================================================ #
 
@@ -829,11 +819,11 @@ mod29 <- lm(
   + migration_direct 
   + migration_indirect 
   + one_or_two_children 
-  + more_than_two_children  #New
+  + more_than_two_children
   
   # --- Financial and Employment ---
   + log(gross_labor_income) 
-  + I(log(gross_labor_income)^2) #New
+  + I(log(gross_labor_income)^2)
   + exp_unemployment_years 
   
   
