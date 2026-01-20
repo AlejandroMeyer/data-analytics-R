@@ -887,11 +887,8 @@ summary(mod30)
 
 # testing of multicollinearity of models
 # test any model by replacing mod_x
-# might need to install packages when using these functions
+# mind to install packages when using vif
 library(car)
-
-# We removed vif(mod20) to focus on the final model validation
-
 vif(mod29) #Final Model
 
 
@@ -934,8 +931,8 @@ axis(1, at = seq(1,6, by = 1))
 hist(new_data$total_children, main = "Children", xlab = "amount of children", 
      col = "lightblue", breaks = seq(0, max(new_data$total_children), by = 1))
 
-# This checks how the gross labor income behaves (in this case from 
-# 2,000 to 6,000 units, an increase of 200%)
+# This checks how the gross labor income behaves 
+# check any starting income and income increase by replacing log(x)
 old <- log(2000) 
 new <- log(6000) 
 effect <- 0.754485 * (new - old) + -0.058797 * (new^2 - old^2) 
@@ -969,7 +966,7 @@ stargazer(mod23, mod29, mod30,
 
 #================-
 
-# 1. Frequency Table (How many Men vs Women)
+# Frequency Table (How many Men vs Women)
 gender_distribution <- new_data %>%
   count(gender_code = gender) %>%
   mutate(
@@ -983,7 +980,7 @@ gender_distribution <- new_data %>%
 # View the result in a table
 View(gender_distribution)
 
-# 2. Base R Table (Quick check)
+# Base R Table (Quick check)
 table(new_data$gender, useNA = "ifany")
 
 
