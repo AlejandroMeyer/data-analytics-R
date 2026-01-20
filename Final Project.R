@@ -55,6 +55,7 @@ head(raw_data)
 library(dplyr)
 
 # Rename the columns in the 'new_data' data frame from 'raw_data'
+# This is the dataframe we use throughout the project now
 new_data <- raw_data %>%
   rename(
     # New_Name = Actual_Name
@@ -62,7 +63,7 @@ new_data <- raw_data %>%
     # Key Dependent Variable
     personal_achievement_deserved = bkp_05_02, 
     
-    # Demographics and Background #Ale
+    # Demographics and Background
     education_level             = isced11_20,
     marital_status              = bkfamstd,
     birth_year                  = bkpbirthy,
@@ -71,7 +72,7 @@ new_data <- raw_data %>%
     total_children              = sumkids,
     household_id                = cid,
     
-    # Financial and Employment  # Ale Meyer
+    # Financial and Employment
     gross_labor_income          = labgro20,
     
     # to test for fulltime experience with 10 year steps 
@@ -86,7 +87,7 @@ new_data <- raw_data %>%
     # instead of just 1.0
     job_prestige_siops          = siops08_20 / 10, 
     
-    # Satisfaction and Attitudes #Deniz and Filippo
+    # Satisfaction and Attitudes
     satisfaction_income         = bkp_01_06,
     satisfaction_job            = bkp_01_03,
     feeling_angry               = bkp_02_01,
@@ -130,7 +131,7 @@ new_data <- new_data |>
     # and high education as professor suggested
     education_low = case_when(
       education_level %in% c(1, 2) ~ 1,
-      education_level == 0 ~ NA_real_,
+      education_level == 0 ~ NA_real_, # need to turn the value 0 into NA (still in school)
       education_level < 0 ~ NA_real_,
       TRUE ~ 0, 
     ),
@@ -144,8 +145,7 @@ new_data <- new_data |>
     
     # -- Marital status --
     # with married living together, married living separate 
-    # and single/unmarried (reference)
-    # Reference: single/unmarried
+    # and single/unmarried as reference group
     married_together = case_when(
       marital_status %in% c(1, 7) ~ 1,
       marital_status < 0 ~ NA_real_,
@@ -160,16 +160,15 @@ new_data <- new_data |>
     # -- Birth_year --     
     
     # We use conditional logic to handle missing birth years (-1, -2, etc.)
-    # We use 2020 as the reference year to match the survey wave (labgro20)
+    # We use 2020 as the reference year to match the survey year (labgro20)
     age = case_when(
-      birth_year < 0 ~ NA_real_, # If negative (missing code), set Age to NA
-      # age calculation, we look at the age variable in 10 year steps (decades)
-      TRUE ~ (2020 - birth_year)/10    
+      birth_year < 0 ~ NA_real_, # If negative (missing code), set Age to NA 
+      TRUE ~ (2020 - birth_year)/10 # age calculation, we look at the age variable in 10 year steps (decades)
     ),
     
     # -- Gender --
     
-    # Reference: Male(0)
+    # Reference group: Male
     gender_female = case_when(
       gender == 2 ~ 1,      # Female (code 2) becomes 1
       gender == 1 ~ 0,      # Male (code 1) becomes 0 (reference)
@@ -178,7 +177,8 @@ new_data <- new_data |>
     
     # -- Migration_background --
     
-    # Reference: No background 
+    # Reference: No migration background
+    # two groups: for direct and indirect migration
     migration_direct = case_when(
       migration_background == 2 ~ 1,
       migration_background < 0 ~ NA_real_,
@@ -194,15 +194,16 @@ new_data <- new_data |>
     # -- Total_children --
     
     # Reference: having no kids
+    # average amount of kids is one or two, which is why we put those it into one group
     one_or_two_children = case_when(
       total_children %in% c(1,2) ~ 1,
-      total_children < 0 ~ NA_real_, #Error!
+      total_children < 0 ~ NA_real_,
       TRUE ~ 0
     ),
     
     more_than_two_children = case_when(
       total_children > 2 ~ 1,
-      total_children < 0 ~ NA_real_, #Error fix
+      total_children < 0 ~ NA_real_,
       TRUE ~ 0
     ),
     
@@ -214,12 +215,7 @@ new_data <- new_data |>
     # ========================================-
     
     # -- gross_labor_income --
-    
-    # transforms income into 1,000 unit steps 
-    # (could also use 500 unit steps or income classes instead)
-    #income_per_1000 = (gross_labor_income/1000),
-    #Delete this
-    
+
     
     # -- exp_fulltime_years --
     
@@ -233,13 +229,15 @@ new_data <- new_data |>
     # -- labor_force_status --
     
     # dummy variables for labor force status, with "working" as reference
-    # unemployed or only secondary job
+    # unemployed or only a minimal amount of employment
     unemployed_or_minimal = case_when(
       labor_force_status %in% c(1, 6, 8, 9, 10, 13) ~ 1,
       labor_force_status < 0 ~ NA_real_,
       TRUE ~ 0
     ),
-    # non working due to reasons: education, pension, military, parental leave
+  
+    # non working due to socially accepted reasons: education, pension, military, parental leave
+    # (mind that this causes multicollinearity with income later)
     non_working = case_when(
       labor_force_status %in% c(2, 3, 4, 5) ~ 1,
       labor_force_status < 0 ~ NA_real_,
@@ -247,7 +245,6 @@ new_data <- new_data |>
     ),
     
     # -- job_prestige_siops --        
-    
     
     # ========================================-
     # ====-- Satisfaction and Attitudes ====--
@@ -260,10 +257,10 @@ new_data <- new_data |>
     # -- feeling_angry --     
     
     # Reference: very rarely or rarely angry
-    # Because want to test the effect of having the negative feelings: 
-    # angriness, worriedness and sadness
+    # Because want to test the effect of experiencing the negative emotions to some degree: 
+    # this is done for angriness, worriedness and sadness
     angry_often = case_when(
-      feeling_angry %in% c(3, 4, 5) ~ 1, # Very often, Often, somewhat = 1
+      feeling_angry %in% c(3, 4, 5) ~ 1, # Very often, often, somewhat = 1
       feeling_angry < 0 ~ NA_real_,
       TRUE ~ 0
     ),
@@ -289,7 +286,7 @@ new_data <- new_data |>
     # -- feeling_happy -- 
     
     # Reference: often or very often happy, because we assume that 
-    # being happy is the default.
+    # being at least somewhat happy is the default.
     # > we want to test the effect of NOT being happy
     not_happy = case_when(
       feeling_happy %in% c(1, 2) ~ 1,   # very rarely (1) or rarely (2) = 1
@@ -323,13 +320,14 @@ new_data <- new_data |>
     ),
     
     # -- life_satisfaction_general --
+    # likert scale is from 0-10 > large enough to assume metric data 
     
     # -- health_status --
     
     # Reference: good health
     # dummy for the health status with very good=1 and good=2 as reference 
-    # (this is the reference because the largest group is health being good)
-    # dummy variable = 1 means their health status is only satisfactory or below
+    # (this is the reference because the largest group is for health being good)
+    # dummy variable = 1 means their health status is only satisfactory or even below
     health_not_good = case_when(
       health_status %in% c(3,4,5) ~ 1,
       health_status < 0 ~ NA_real_,
@@ -338,15 +336,15 @@ new_data <- new_data |>
     
     # -- political_interest -- 
     
-    # Reference: political interest being not so strong (largest group)
-    # dummy for having strong political interest
+    # Reference: political interest being not so strong = 3 (largest group)
+    # dummy for having strong or very strong political interest
     strong_political_interest = case_when(
       political_interest %in% c(1,2) ~ 1,
       political_interest < 0 ~ NA_real_,
       TRUE ~ 0
     ),
     
-    # dummy for having strong political interest at all
+    # dummy for having no political interest at all
     no_political_interest = case_when(
       political_interest == 4 ~ 1,
       political_interest < 0 ~ NA_real_,
@@ -372,19 +370,22 @@ new_data <- new_data |>
     
     # -- number_close_friends --          
     
-    # Reference is average number of close friends (2 - 4)
+    # Reference: Average number of close friends (2 - 4)
+    #low amount of friends: 0 or 1
     low_friends = case_when(
       number_close_friends %in% c(0, 1) ~ 1,
       labor_force_status < 0 ~ NA_real_,
       TRUE ~ 0
     ),
-    
+
+    # high amount of friends: 5-8
     high_friends = case_when(
       number_close_friends %in% c(5,6,7,8) ~ 1,
       labor_force_status < 0 ~ NA_real_,
       TRUE ~ 0
     ),
-    
+
+    # At more than 8 close friends at all > very few cases
     very_high_friends = case_when(
       number_close_friends > 8 ~ 1,
       labor_force_status < 0 ~ NA_real_,
@@ -397,8 +398,8 @@ new_data <- new_data |>
     # Reference: not experiencing bad feelings across all 3 categories
     # bad_feeling_overall = 1 when person experiences angriness, sadness 
     # and lack of happiness all at the same time
-    # worriedness is not included because it has been identified as a 
-    # different type of bad feeling and doesn't correlate well with others
+    # Worriedness is not included because it has been identified as a 
+    # different type of bad feeling and doesn't correlate well with the others
     bad_feeling_overall = case_when(
       feeling_angry %in% c(3,4,5) & 
         feeling_sad %in% c(3,4,5) & 
@@ -406,7 +407,7 @@ new_data <- new_data |>
       TRUE ~ 0
     ),
     
-    # Dummy for checking extremely high life satisfaction
+    # Dummy for checking extremely high life satisfaction (important satisfaction variable)
     # Reference: values from 1-8 on the likert scale
     high_life_satisfaction = case_when(
       life_satisfaction_general %in% c(9,10) ~ 1,
@@ -414,9 +415,9 @@ new_data <- new_data |>
       TRUE ~ 0
     ),
     
-    # Dummy for experiencing high satisfaction and psychological values 
-    # across 3 categories
+    # Dummy for experiencing high satisfaction and psychological values across 3 categories
     # Reference: not experiencing high satisfaction (> 7) in all 3 categories
+    # Mind that this is ultimately not used in the final model
     high_satisfaction_values = case_when(
       satisfaction_income > 7 &
         satisfaction_job > 7 &
@@ -424,8 +425,8 @@ new_data <- new_data |>
       TRUE ~ 0
     ),
     
-    # lOGTEST
-    # Dummy for optional log tests, please do NOT delete
+    # FOR LOGTEST
+    # Dummy for optional log tests
     achievement_deserved = case_when(
       personal_achievement_deserved %in% c(1,2,3) ~ 1,
       personal_achievement_deserved < 0 ~ NA_real_,
@@ -437,10 +438,11 @@ new_data <- new_data |>
 # replace all other negative values we haven't replaced yet also with NA
 new_data[new_data < 0] <- NA
 
-sum(new_data$gross_labor_income == 0, na.rm = TRUE)
+
 # Because we use log() in the modelling phase for gross labor income
 # We can not have income values that equal 0
 # (there are 50 gross labor income values in the data set with the value 0)
+sum(new_data$gross_labor_income == 0, na.rm = TRUE)
 new_data$gross_labor_income[new_data$gross_labor_income == 0] <- NA
 
 # ================================================================ #
