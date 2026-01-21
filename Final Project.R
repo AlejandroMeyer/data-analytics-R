@@ -1,47 +1,7 @@
-#' ---
-#' title: ""
-#' author: ""
-#' date: ""
-#' ---
-
-
-
-# /////////////////////////////////////////////////////////////////
-#
-#        PROJECT ENVIRONMENT MANAGEMENT (renv)
-#
-# /////////////////////////////////////////////////////////////////
-
-# This project uses the 'renv' package to manage dependencies and 
-# ensure reproducibility. All collaborators must use the same package 
-# versions defined in the 'renv.lock' file.
-
-# 1. INITIAL SETUP FOR NEW USERS:
-#    If this is the first time working on the project, the environment 
-#    should activate automatically when you open the 'Project.Rproj' file. 
-#    If prompted, confirm that you wish to restore the library.
-
-# 2. MANUAL RESTORE (If activation fails):
-#    If the environment doesn't load, run this command in the R Console 
-#    to install/restore the required packages and versions. This ensures 
-#    your setup matches the committed environment.
-#
-# renv::restore() 
-
-# 3. UPDATING PACKAGES:
-#    If you install or update packages necessary for the project, run:
-#    renv::snapshot() 
-#    Then, COMMIT the updated 'renv.lock' file to GitHub.
-#
-# /////////////////////////////////////////////////////////////////
-
-
-# The file has been loaded
 load("Group_3.RData")
 
-# Changing the name of my variable
-View(dat) # As table
-raw_data <- dat
+View(dat)
+raw_data <- dat # renaming dat to rawdata
 head(raw_data)
 
 
@@ -107,7 +67,7 @@ new_data <- raw_data %>%
 head(new_data)
 
 # ================================================================ #
-#                        END DATA CLEANING
+#                        END OF RENAMING
 # ================================================================ #
 
 
