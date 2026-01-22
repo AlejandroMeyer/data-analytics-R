@@ -808,6 +808,7 @@ mod29 <- lm(
 summary(mod29)
 
 
+# smaller less predictive model, that we can use to compare later
 mod30 <- lm(
   formula = personal_achievement_deserved ~ 
     
