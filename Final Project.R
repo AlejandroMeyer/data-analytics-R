@@ -491,7 +491,7 @@ mod7 <- lm(
   + I(log(gross_labor_income)^2) 
   + satisfaction_job 
   + life_satisfaction_general + life_value_usefulness 
-  + positive_attitude + low_friends + high_friends, 
+  + positive_attitude + low_friends + high_friends + very_high_friends, 
   data = new_data
 )
 summary(mod7)
