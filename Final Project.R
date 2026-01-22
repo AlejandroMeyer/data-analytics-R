@@ -7,7 +7,7 @@ head(raw_data)
 
 # ================================================================ #
 # ================================================================ #
-#                        DATA CLEANING
+#                        RENAMING
 # ================================================================ #
 # ================================================================ #
 
@@ -118,6 +118,7 @@ new_data <- new_data |>
     ),
     
     # -- Birth_year --     
+    # none
     
     # We use conditional logic to handle missing birth years (-1, -2, etc.)
     # We use 2020 as the reference year to match the survey year (labgro20)
@@ -168,23 +169,23 @@ new_data <- new_data |>
     ),
     
     # -- Household_id --        
-    
+    # none
     
     # ========================================-
     # ====-- Financial and Employment ====--
     # ========================================-
     
     # -- gross_labor_income --
-
+    # none
     
     # -- exp_fulltime_years --
-    
+    # none
     
     # -- exp_unemployment_years --
-    
+    # none
     
     # -- exp_parttime_years --
-    
+    # none
     
     # -- labor_force_status --
     
@@ -205,16 +206,20 @@ new_data <- new_data |>
     ),
     
     # -- job_prestige_siops --        
+    # none
     
     # ========================================-
     # ====-- Satisfaction and Attitudes ====--
     # ========================================-
     
     # -- satisfaction_income --
+    # none
     
     # -- satisfaction_job --      
+    # none
     
-    # -- feeling_angry --     
+    # -- feeling_angry --    
+    # none
     
     # Reference: very rarely or rarely angry
     # Because want to test the effect of experiencing the negative emotions to some degree: 
@@ -860,11 +865,11 @@ vif(mod29) #Final Model
 
 # ================================================================ #
 # ================================================================ #
-#                     VISUALIZATIONS AND GRAPHS
+#                     VISUALIZATIONS AND EXPERMIANTIONS
 # ================================================================ #
 # ================================================================ #
 
-# BELOW HERE ARE SOME EXPERIMENTATIONS TO VISUALIZE AND GET MORE 
+# BELOW HERE ARE SOME OF THHE EXPERIMENTATIONS WE USED TO VISUALIZE AND GET MORE 
 # FAMILIARIZED WITH THE DATA
 
 mean(new_data$personal_achievement_deserved)
@@ -892,6 +897,9 @@ axis(1, at = seq(1,6, by = 1))
 hist(new_data$total_children, main = "Children", xlab = "amount of children", 
      col = "lightblue", breaks = seq(0, max(new_data$total_children), by = 1))
 
+mean(new_data$personal_achievement_deserved)
+hist(new_data$job_prestige_siops)
+
 # This checks how the gross labor income behaves 
 # check any starting income and income increase by replacing log(x)
 old <- log(2000) 
@@ -900,7 +908,7 @@ effect <- 0.754485 * (new - old) + -0.058797 * (new^2 - old^2)
 effect
 
 # ================================================================ #
-#                     END VISUALIZATIONS AND GRAPHS
+#                     END OF VISUALIZATIONS AND EXPERIMANTIONS
 # ================================================================ #
 
 
@@ -909,6 +917,7 @@ effect
 #                        COMPARING MODELS
 # ================================================================ #
 # ================================================================ #
+# Furhter tests we used to compare results of different models
 
 install.packages("stargazer")
 
@@ -948,7 +957,7 @@ table(new_data$gender, useNA = "ifany")
 # ================================================================ #
 #                        TEST TO VALIDATE DUMMIES
 # ================================================================ #
-
+# Further tests to check for correctness of dummies
 
 table(Original = new_data$education_level, 
       Dummy = new_data$education_low, useNA = "ifany")
@@ -961,5 +970,5 @@ validation_education <- new_data %>%
 View(validation_education)
 
 # ================================================================ #
-#                        END PROJECT
+#                        END OF PROJECT
 # ================================================================ #
