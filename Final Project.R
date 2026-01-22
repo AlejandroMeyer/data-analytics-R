@@ -14,7 +14,7 @@ head(raw_data)
 # Load the necessary library for data manipulation
 library(dplyr)
 
-# Rename the columns in the 'new_data' data frame from 'raw_data'
+# Rename the columns in the new_data data frame (from the colums of raw_data)
 # This is the dataframe we use throughout the project now
 new_data <- raw_data %>%
   rename(
